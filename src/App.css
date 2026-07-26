@@ -4,9 +4,42 @@
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto',
+    'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans',
+    'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background-color: #202020;
+}
+
+.jobs-container {
+  display: flex;
+  gap: 30px;
+  align-items: flex-start;
+}
+
+.jobs-sidebar {
+  width: 280px;
+  position: sticky;
+  top: 90px;
+  align-self: flex-start;
+}
+
+.jobs-content {
+  flex: 1;
+}
+
+ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.jobs-sidebar h1 {
+  margin-top: 24px;
 }

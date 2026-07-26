@@ -2,7 +2,6 @@
 
 import {Component} from 'react'
 import {
-  BrowserRouter,
   Switch,
   Route,
   Redirect,
@@ -13,11 +12,8 @@ import Cookies from 'js-cookie'
 import Loader from 'react-loader-spinner'
 import {
   BsSearch,
-  BsStarFill,
-  BsBriefcaseFill,
   BsBoxArrowUpRight,
 } from 'react-icons/bs'
-import {MdLocationOn} from 'react-icons/md'
 
 import './App.css'
 
@@ -56,6 +52,29 @@ const salaryRangesList = [
   {
     salaryRangeId: '4000000',
     label: '40 LPA and above',
+  },
+]
+
+const locationsList = [
+  {
+    locationId: 'Hyderabad',
+    label: 'Hyderabad',
+  },
+  {
+    locationId: 'Bangalore',
+    label: 'Bangalore',
+  },
+  {
+    locationId: 'Chennai',
+    label: 'Chennai',
+  },
+  {
+    locationId: 'Delhi',
+    label: 'Delhi',
+  },
+  {
+    locationId: 'Mumbai',
+    label: 'Mumbai',
   },
 ]
 
@@ -228,6 +247,7 @@ class Jobs extends Component {
     searchInput: '',
     activeSalary: '',
     activeEmployment: [],
+    activeLocations: [],
     profileStatus: 'INITIAL',
     jobsStatus: 'INITIAL',
   }
@@ -265,7 +285,8 @@ class Jobs extends Component {
   getJobs = async () => {
     this.setState({jobsStatus: 'LOADING'})
 
-    const {searchInput, activeSalary, activeEmployment} = this.state
+    const {searchInput, activeSalary, activeEmployment, activeLocations} =
+      this.state
 
     const employmentTypes = activeEmployment.join(',')
 
@@ -280,12 +301,19 @@ class Jobs extends Component {
     }
 
     const response = await fetch(url, options)
-
     const data = await response.json()
 
     if (response.ok === true) {
+      let filteredJobs = data.jobs
+
+      if (activeLocations.length > 0) {
+        filteredJobs = filteredJobs.filter(eachJob =>
+          activeLocations.includes(eachJob.location),
+        )
+      }
+
       this.setState({
-        jobsData: data.jobs,
+        jobsData: filteredJobs,
         jobsStatus: 'SUCCESS',
       })
     } else {
@@ -324,6 +352,21 @@ class Jobs extends Component {
     this.setState(
       {
         activeSalary: id,
+      },
+      () => this.getJobs(),
+    )
+  }
+
+  changeLocation = id => {
+    this.setState(
+      prevState => {
+        const isSelected = prevState.activeLocations.includes(id)
+
+        return {
+          activeLocations: isSelected
+            ? prevState.activeLocations.filter(each => each !== id)
+            : [...prevState.activeLocations, id],
+        }
       },
       () => this.getJobs(),
     )
@@ -434,14 +477,14 @@ class Jobs extends Component {
   }
 
   render() {
-    const {searchInput, activeSalary} = this.state
+    const {searchInput, activeSalary, activeLocations} = this.state
 
     return (
       <>
         <Header />
 
         <div className="jobs-container">
-          <div>
+          <div className="jobs-sidebar">
             {this.renderProfile()}
 
             <h1>Type of Employment</h1>
@@ -450,12 +493,12 @@ class Jobs extends Component {
               {employmentTypesList.map(each => (
                 <li key={each.employmentTypeId}>
                   <input
-                    type="checkbox"
-                    id={each.employmentTypeId}
-                    onChange={() =>
-                      this.changeEmployment(each.employmentTypeId)
-                    }
-                  />
+                  type="checkbox"
+                  id={each.employmentTypeId}
+                  checked={this.state.activeEmployment.includes(each.employmentTypeId)}
+                  onChange={() => this.changeEmployment(each.employmentTypeId)}
+                />
+          
 
                   <label htmlFor={each.employmentTypeId}>{each.label}</label>
                 </li>
@@ -476,6 +519,25 @@ class Jobs extends Component {
                   />
 
                   <label htmlFor={each.salaryRangeId}>{each.label}</label>
+                </li>
+              ))}
+            </ul>
+
+            <hr />
+
+            <h1>Locations</h1>
+
+            <ul>
+              {locationsList.map(each => (
+                <li key={each.locationId}>
+                  <input
+                    type="checkbox"
+                    id={each.locationId}
+                    checked={activeLocations.includes(each.locationId)}
+                    onChange={() => this.changeLocation(each.locationId)}
+                  />
+
+                  <label htmlFor={each.locationId}>{each.label}</label>
                 </li>
               ))}
             </ul>
